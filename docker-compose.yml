@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  frontend:
+    build: 
+      context: ./OfferCreationPortal
+      dockerfile: Dockerfile
+    ports:
+      - "4300:4200"
+    depends_on:
+      - backend
+
+  backend:
+    build: 
+      context: ./OfferCreation
+      dockerfile: Dockerfile
+    ports:
+      - "8091:8091"
+    environment:
+      DATABASE_URL: jdbc:mysql://database:3306/OfferCreationDB
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Db@N!jai
+      MYSQL_DATABASE: OfferCreationDB
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Db@N!jai
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "-pDb@N!jai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+volumes:
+  db_data:
