@@ -1,9 +1,27 @@
 pipeline {
-    agent { label 'ubuntu' }
+    agent { label 'ubuntu' }  // matches your ubuntu-agent node
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+
         stage('Build') {
             steps {
-                sh 'echo Hello from Ubuntu agent'
+                sh 'npm run build -- --prod'
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'dist/**', fingerprint: true
             }
         }
     }
