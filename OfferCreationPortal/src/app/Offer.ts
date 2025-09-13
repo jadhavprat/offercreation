@@ -5,7 +5,7 @@
         public offerName: string='';
         public offerDescription: string='';
         public offerType: string='';
-        public activationDate: Date = new Date();
-        public expirationDate: Date = new Date();
+        public activationDate: string='';
+        public expirationDate: string='';
         public subOffers: SubOffer[]=[];
     }

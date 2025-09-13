@@ -1,0 +1,30 @@
+pipeline {
+    agent { label 'ubuntu-agent' }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/your-org/your-frontend-repo.git',
+                    credentialsId: 'your-git-credentials-id'
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'ng build --prod'  // or gulp build if AngularJS 1.x
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'dist/**', fingerprint: true
+            }
+        }
+    }
+}

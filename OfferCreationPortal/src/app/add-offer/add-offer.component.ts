@@ -102,6 +102,19 @@ export class AddOfferComponent {
   back(){
     this.showForm1 = true;
   }
+  
+convertToDateFromYMD(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  console.log(dateString.split('-').map(Number));
+  return new Date(year, month - 1,day); // JS Date months are 0-based
+}
+
+formatDateToDDMMYYYY(date: Date): string {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
 
   finish() {
     // this.form1Data.push(this.offerForm.value;
@@ -111,8 +124,24 @@ export class AddOfferComponent {
     this.offer.offerName = this.offerForm.value.offerName??'';
     this.offer.offerDescription = this.offerForm.value.offerDescription??'';
     this.offer.offerType = this.offerForm.value.offerType??'';
-    this.offer.activationDate = this.offerForm.value.activationDate??'';
-    this.offer.expirationDate = this.offerForm.value.expirationDate??'';
+
+    const formValue = this.offerForm.value;
+
+  const activationDateStr = formValue.activationDate; // "yyyy-MM-dd"
+  const expirationDateStr = formValue.expirationDate;
+
+  if (activationDateStr) {
+    const parsedDate = this.convertToDateFromYMD(activationDateStr);
+    console.log('Formatted:', this.formatDateToDDMMYYYY(parsedDate)); // Optional
+    this.offer.activationDate = this.formatDateToDDMMYYYY(parsedDate);
+  }
+
+  if (expirationDateStr) {
+    const parsedDate = this.convertToDateFromYMD(expirationDateStr);
+    console.log('Formatted:', this.formatDateToDDMMYYYY(parsedDate)); // Optional
+    this.offer.expirationDate = this.formatDateToDDMMYYYY(parsedDate);
+  }
+    
     this.offer.subOffers = this.form2Data??[];
 
     const serializedData = JSON.stringify(this.offerForm.value.expirationDate);
