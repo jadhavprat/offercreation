@@ -4,7 +4,9 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/jadhavprat/offercreation.git',
+                url: 'https://github.com/jadhavprat/offercreation',
+                credentialsId: 'github-offercreation-token'
+
             }
         }
 
