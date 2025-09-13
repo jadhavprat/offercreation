@@ -1,55 +1,10 @@
 pipeline {
     agent { label 'ubuntu' }
-
-    environment {
-        NODE_ENV = 'UAT'
-    }
-
     stages {
-        stage('Checkout') {
-            steps {
-                // Jenkins auto-checkouts if job is "Pipeline from SCM"
-                checkout scm
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm ci'   // cleaner, faster, and uses package-lock.json
-            }
-        }
-
-        stage('Lint') {
-            steps {
-                sh 'npm run lint || true'  // adjust if you have linting
-            }
-        }
-
         stage('Build') {
             steps {
-                sh 'npm run build -- --configuration UAT'
+                sh 'echo Hello from Ubuntu agent'
             }
-        }
-
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'dist/**', fingerprint: true
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'npm test || true'   // adjust if you have tests configured
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Build completed successfully!"
-        }
-        failure {
-            echo "❌ Build failed. Check logs."
         }
     }
 }
