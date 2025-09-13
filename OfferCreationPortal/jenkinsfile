@@ -5,7 +5,7 @@ pipeline {
             steps {
                 git branch: 'main',
                 url: 'https://github.com/jadhavprat/offercreation.git',
-                credentialsId: 'github-offercreation-token'
+                credentialsId: 'github-token-test'
 
             }
         }
