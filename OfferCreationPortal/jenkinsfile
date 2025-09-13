@@ -1,23 +1,33 @@
 pipeline {
     agent { label 'ubuntu-agent' }
 
+    environment {
+        NODE_ENV = 'UAT'
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/your-org/your-frontend-repo.git',
-                    credentialsId: 'your-git-credentials-id'
+                // Jenkins auto-checkouts if job is "Pipeline from SCM"
+                checkout scm
             }
         }
+
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'npm ci'   // cleaner, faster, and uses package-lock.json
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'npm run lint || true'  // adjust if you have linting
             }
         }
 
         stage('Build') {
             steps {
-                sh 'ng build --prod'  // or gulp build if AngularJS 1.x
+                sh 'npm run build -- --configuration UAT'
             }
         }
 
@@ -25,6 +35,21 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: 'dist/**', fingerprint: true
             }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test || true'   // adjust if you have tests configured
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Build completed successfully!"
+        }
+        failure {
+            echo "❌ Build failed. Check logs."
         }
     }
 }
