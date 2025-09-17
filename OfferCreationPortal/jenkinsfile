@@ -1,15 +1,6 @@
 pipeline {
-    agent { label 'ubuntu' }  // matches your ubuntu-agent node
+    agent any  // matches your ubuntu-agent node
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                url: 'https://github.com/jadhavprat/offercreation.git',
-                credentialsId: 'github-token-test'
-
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
