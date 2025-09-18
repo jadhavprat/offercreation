@@ -1,13 +1,12 @@
 pipeline {
   agent any
 
-//   environment {
-//     AWS_REGION = "ap-southeast-1"
+  environment {
     IMAGE_NAME = "offercreation-backend"
-    IMAGE_TAG  = "${env.BUILD_NUMBER}"
-    IMAGE_TAR  = "${IMAGE_NAME}-${IMAGE_TAG}.tar"
-    // S3_BUCKET  = "my-image-uploads-pratiksha"
-    // S3_PREFIX  = "artifacts/docker-images"
+    // Cannot directly reference env.BUILD_NUMBER in environment; set later in `script`
+    AWS_REGION = "ap-southeast-1"
+    S3_BUCKET  = "my-image-uploads-pratiksha"
+    S3_PREFIX  = "artifacts/docker-images"
   }
 
   stages {
@@ -17,45 +16,30 @@ pipeline {
       }
     }
 
-    // stage('Fetch AWS Credentials from SSM') {
-    //   steps {
-    //     sh '''
-    //       export AWS_DEFAULT_REGION=${AWS_REGION}
-
-    //       AWS_ACCESS_KEY_ID=$(aws ssm get-parameter \
-    //         --name "/terraform/aws_access_key_id" \
-    //         --with-decryption \
-    //         --query "Parameter.Value" \
-    //         --output text)
-
-    //       AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter \
-    //         --name "/terraform/aws_secret_access_key" \
-    //         --with-decryption \
-    //         --query "Parameter.Value" \
-    //         --output text)
-
-    //       echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $WORKSPACE/aws_creds.sh
-    //       echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $WORKSPACE/aws_creds.sh
-    //     '''
-    //   }
-    // }
-
-    stage('Build Docker Image') {
+    stage('Set Image Tag') {
       steps {
-        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+        script {
+          // Set dynamic variables in Groovy script block
+          env.IMAGE_TAG = "${env.BUILD_NUMBER}"
+          env.IMAGE_TAR = "${env.IMAGE_NAME}-${env.IMAGE_TAG}.tar"
+        }
       }
     }
 
+    stage('Build Docker Image') {
+      steps {
+        sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
+      }
+    }
+
+    // Uncomment when ready
     // stage('Save Docker Image and Upload to S3') {
     //   steps {
     //     sh '''
-    //       source $WORKSPACE/aws_creds.sh
-    //       export AWS_DEFAULT_REGION=${AWS_REGION}
-
     //       docker save ${IMAGE_NAME}:${IMAGE_TAG} -o ${IMAGE_TAR}
     //       aws s3 cp ${IMAGE_TAR} s3://${S3_BUCKET}/${S3_PREFIX}/${IMAGE_TAR}
     //     '''
     //   }
     // }
   }
-
+}
